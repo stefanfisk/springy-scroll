@@ -1,0 +1,20 @@
+body {
+  height: 2000rem;
+  background: repeating-linear-gradient(
+    cyan,
+    cyan 250px,
+    yellow 250px,
+    yellow 500px
+  );
+}
+
+.circle {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  margin-left: 50vw;
+  margin-top: 50vh;
+  border-radius: 50%;
+  background: red;
+  transform: translate(-50%, -50%);
+}
