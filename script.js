@@ -28,8 +28,8 @@ requestAnimationFrame(onAnimationFrame);
 //
 // Results in a value -1 <= x <= 1
 
-const drag = 0.8;
-const strength = 0.1;
+const drag = 0.8; // reduce the existing velocity a bit with drag
+const strength = 0.1; // the "strength" of our "spring"
 
 let vel = 0;
 let pos = 0;
@@ -39,12 +39,12 @@ const calcX = (dT) => {
 
   let force = scrollY - pos;
 
-  force *= strength; // the "strength" of our "spring"
+  force *= strength;
 
-  vel *= drag; // reduce the existing velocity a bit with drag
-  vel += force; // add this frame's force to the velocity
+  vel *= drag;
+  vel += force;
 
-  pos += vel; // update the position with the adjusted velocity
+  pos += vel;
 
   const fixPos = pos - scrollY;
 
@@ -62,8 +62,8 @@ const calcX = (dT) => {
 const topPathEl = document.querySelector('#top-curve-path');
 const bottomPathEl = document.querySelector('#bottom-curve-path');
 
-const outerH = 50;
-const maxH = 25;
+const outerH = 50; // Height of SVG element.
+const maxH = 25; // Max height of path
 
 const draw = (x) => {
   const h = x * maxH;
