@@ -1,103 +1,57 @@
-// Constants.
+// Calculate springiness.
+//
+// Results in a value -1 <= v <= 1
 
-const drag = 0.8;
-const strength = 10;
+const drag = 0.4;
+const strength = 0.1;
 
-const circleEl = document.querySelector(".circle");
-
-// Types
-
-class RollingAverage {
-  constructor(length = 10) {
-    this.i = 0;
-    this.values = new Array(length);
-    this.values.fill(null);
-  }
-
-  add(val) {
-    this.values[this.i] = val;
-    this.i++;
-
-    if (this.i === this.values.length) {
-      this.i = 0;
-    }
-  }
-
-  get() {
-    let acc = 0;
-    let n = 0;
-
-    for (const v of this.values) {
-      if (null === v) {
-        continue;
-      }
-
-      acc += v;
-      n++;
-    }
-
-    if (0 === n) {
-      return 0;
-    }
-
-    const avg = acc / n;
-
-    return avg;
-  }
-}
-
-// State.
-
-let oldTimestamp = 0;
-let oldScrollY = 0;
-
-let rollingScrollVel = new RollingAverage();
-
-let pos = 0;
 let vel = 0;
+let pos = 0;
 
-// Event Handlers.
-
-const update = (dT) => {
+const onAnimationFrame = () => {
   const scrollY = window.scrollY;
 
-  const scrollDY = scrollY - oldScrollY;
-
-  const scrollVel = scrollDY;
-
-  rollingScrollVel.add(scrollVel);
-
-  const avgScrollVel = rollingScrollVel.get();
-
-  let force = avgScrollVel;
+  let force = scrollY - pos;
 
   force *= strength; // the "strength" of our "spring"
 
   vel *= drag; // reduce the existing velocity a bit with drag
   vel += force; // add this frame's force to the velocity
+
   pos += vel; // update the position with the adjusted velocity
 
-  circleEl.style.top = pos + "px";
+  const fixPos = pos - scrollY;
 
-  console.log({ dT, scrollDY, scrollVel, avgScrollVel, force, pos, vel });
+  const max = 100;
 
-  oldScrollY = scrollY;
-};
+  const cappedRelPos = Math.max(-1, Math.min(fixPos / max, 1));
 
-const onAnimationFrame = (timestamp) => {
-  if (!oldTimestamp) {
-    oldTimestamp = timestamp;
-  }
-
-  let dT = timestamp - oldTimestamp;
-
-  if (0 !== dT) {
-    update(dT);
-  }
-
-  oldTimestamp = timestamp;
+  draw(cappedRelPos);
 
   requestAnimationFrame(onAnimationFrame);
 };
 
 requestAnimationFrame(onAnimationFrame);
+
+// Draw.
+//
+// Convert -1 <= v <= 1 to a courve height.
+
+const topPathEl = document.querySelector('#top-curve-path');
+const bottomPathEl = document.querySelector('#bottom-curve-path');
+
+const draw = (v) => {
+  const outerH = 50;
+  const maxH = 25;
+
+  const h = v * maxH;
+
+  const topH = outerH - Math.max(0, h);
+  const bottomH = Math.max(0, -h);
+
+  const topD = `M 0 50 Q 50 ${topH} 100 50`;
+  const bottomD = `M 0 0 Q 50 ${bottomH} 100 0`;
+
+  topPathEl.setAttribute('d', topD);
+  bottomPathEl.setAttribute('d', bottomD);
+}
