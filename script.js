@@ -1,14 +1,40 @@
+// Animate.
+
+let oldTimestamp;
+
+const onAnimationFrame = (timestamp) => {
+  if (!oldTimestamp) {
+    oldTimestamp = timestamp;
+
+    requestAnimationFrame(onAnimationFrame);
+
+    return;
+  }
+
+  const dT = timestamp - oldTimestamp;
+
+  const x = calcX(dT);
+
+  draw(x);
+
+  oldTimestamp = timestamp;
+
+  requestAnimationFrame(onAnimationFrame);
+};
+
+requestAnimationFrame(onAnimationFrame);
+
 // Calculate springiness.
 //
-// Results in a value -1 <= v <= 1
+// Results in a value -1 <= x <= 1
 
-const drag = 0.4;
+const drag = 0.8;
 const strength = 0.1;
 
 let vel = 0;
 let pos = 0;
 
-const onAnimationFrame = () => {
+const calcX = (dT) => {
   const scrollY = window.scrollY;
 
   let force = scrollY - pos;
@@ -26,25 +52,21 @@ const onAnimationFrame = () => {
 
   const cappedRelPos = Math.max(-1, Math.min(fixPos / max, 1));
 
-  draw(cappedRelPos);
-
-  requestAnimationFrame(onAnimationFrame);
+  return cappedRelPos;
 };
-
-requestAnimationFrame(onAnimationFrame);
 
 // Draw.
 //
-// Convert -1 <= v <= 1 to a courve height.
+// Convert -1 <= x <= 1 to a courve height.
 
 const topPathEl = document.querySelector('#top-curve-path');
 const bottomPathEl = document.querySelector('#bottom-curve-path');
 
-const draw = (v) => {
-  const outerH = 50;
-  const maxH = 25;
+const outerH = 50;
+const maxH = 25;
 
-  const h = v * maxH;
+const draw = (x) => {
+  const h = x * maxH;
 
   const topH = outerH - Math.max(0, h);
   const bottomH = Math.max(0, -h);
