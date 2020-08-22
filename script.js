@@ -1,4 +1,6 @@
-// Animate.
+// Run simulation in at least 1/15 sec steps.
+
+const maxDT = 1 / 15;
 
 let oldTimestamp;
 
@@ -11,7 +13,13 @@ const onAnimationFrame = (timestamp) => {
     return;
   }
 
-  const dT = timestamp - oldTimestamp;
+  let dT = (timestamp - oldTimestamp) / 1000 * 60;
+
+  while (dT > maxDT) {
+    calcX(maxDT);
+
+    dT -= maxDT;
+  }
 
   const x = calcX(dT);
 
@@ -26,38 +34,43 @@ requestAnimationFrame(onAnimationFrame);
 
 // Calculate springiness.
 //
-// Results in a value -1 <= x <= 1
+// Results in a value -1 <= x <= 1.
 
-const drag = 0.8; // reduce the existing velocity a bit with drag
-const strength = 0.1; // the "strength" of our "spring"
+const mass = 100;
+const k = 5;
+const damping = 25;
 
-let vel = 0;
-let pos = 0;
+let velocityY = 0;
+let y = window.scrollY;
 
 const calcX = (dT) => {
   const scrollY = window.scrollY;
 
-  let force = scrollY - pos;
+  const distanceY = (scrollY - y);
 
-  force *= strength;
+  const springForceY = k * distanceY;
+  const dampingForceY = damping * velocityY;
+  const forceY = springForceY - dampingForceY;
 
-  vel *= drag;
-  vel += force;
+  const accelerationY = forceY / mass;
 
-  pos += vel;
+  velocityY = velocityY + accelerationY * dT;
 
-  const fixPos = pos - scrollY;
+  y = y + velocityY * dT;
+
+  const fixedY = y - scrollY;
 
   const max = 100;
 
-  const cappedRelPos = Math.max(-1, Math.min(fixPos / max, 1));
+  const relY = fixedY / max;
+  const cappedRelY = Math.max(-1, Math.min(relY, 1));
 
-  return cappedRelPos;
+  return cappedRelY;
 };
 
 // Draw.
 //
-// Convert -1 <= x <= 1 to a courve height.
+// Converts -1 <= x <= 1 to a curve height.
 
 const topPathEl = document.querySelector('#top-curve-path');
 const bottomPathEl = document.querySelector('#bottom-curve-path');
@@ -66,7 +79,7 @@ const outerH = 50; // Height of SVG element.
 const maxH = 25; // Max height of path
 
 const draw = (x) => {
-  const h = x * maxH;
+  const h = Math.round(x * maxH);
 
   const topH = outerH - Math.max(0, h);
   const bottomH = Math.max(0, -h);
