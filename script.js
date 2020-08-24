@@ -79,7 +79,7 @@ const outerH = 50; // Height of SVG element.
 const maxH = 25; // Max height of path
 
 const draw = (x) => {
-  const h = Math.round(x * maxH);
+  const h = -x * maxH;
 
   const topH = outerH - Math.max(0, h);
   const bottomH = Math.max(0, -h);
