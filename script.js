@@ -39,6 +39,7 @@ requestAnimationFrame(onAnimationFrame);
 const mass = 100;
 const k = 5;
 const damping = 25;
+const maxLength = 500;
 
 let velocityY = 0;
 let y = window.scrollY;
@@ -46,7 +47,15 @@ let y = window.scrollY;
 const calcX = (dT) => {
   const scrollY = window.scrollY;
 
-  const distanceY = (scrollY - y);
+  let distanceY = (scrollY - y);
+
+  if (distanceY < -maxLength) {
+    y = scrollY + maxLength;
+    distanceY = -maxLength;
+  } else if (distanceY > maxLength) {
+    y = scrollY - maxLength;
+    distanceY = maxLength;
+  }
 
   const springForceY = k * distanceY;
   const dampingForceY = damping * velocityY;
@@ -60,12 +69,9 @@ const calcX = (dT) => {
 
   const fixedY = y - scrollY;
 
-  const max = 100;
+  const relY = fixedY / maxLength;
 
-  const relY = fixedY / max;
-  const cappedRelY = Math.max(-1, Math.min(relY, 1));
-
-  return cappedRelY;
+  return relY;
 };
 
 // Draw.
