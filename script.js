@@ -13,7 +13,7 @@ const onAnimationFrame = (timestamp) => {
     return;
   }
 
-  let dT = (timestamp - oldTimestamp) / 1000 * 60;
+  let dT = (timestamp - oldTimestamp) / 1000;
 
   while (dT > maxDT) {
     calcX(maxDT);
@@ -36,9 +36,9 @@ requestAnimationFrame(onAnimationFrame);
 //
 // Results in a value -1 <= x <= 1.
 
-const mass = 100;
-const k = 5;
-const damping = 25;
+const mass = 10;
+const k = 1000;
+const damping = 100;
 const maxLength = 500;
 
 let velocityY = 0;
